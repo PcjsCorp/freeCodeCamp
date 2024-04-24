@@ -16,11 +16,9 @@ test('should render the modal content correctly', async ({ page }) => {
 
   await page.getByRole('button', { name: translations.buttons.reset }).click();
 
-  // There are two elements with the `dialog` role in the DOM.
-  // This appears to be semantically incorrect and should be resolved
-  // once we have migrated the component to use Dialog from the `ui-components` library.
-  const dialogs = await page.getByRole('dialog').all();
-  expect(dialogs).toHaveLength(2);
+  await expect(
+    page.getByRole('dialog', { name: translations.learn.reset })
+  ).toBeVisible();
 
   await expect(
     page.getByRole('button', {
@@ -138,11 +136,9 @@ test('should close when the user clicks the close button', async ({ page }) => {
 
   await page.getByRole('button', { name: translations.buttons.reset }).click();
 
-  // There are two elements with the `dialog` role in the DOM.
-  // This appears to be semantically incorrect and should be resolved
-  // once we have migrated the component to use Dialog from the `ui-components` library.
-  const dialogs = await page.getByRole('dialog').all();
-  expect(dialogs).toHaveLength(2);
+  await expect(
+    page.getByRole('dialog', { name: translations.learn.reset })
+  ).toBeVisible();
 
   await page
     .getByRole('button', {
@@ -150,5 +146,46 @@ test('should close when the user clicks the close button', async ({ page }) => {
     })
     .click();
 
-  await expect(page.getByRole('dialog')).toBeHidden();
+  await expect(
+    page.getByRole('dialog', { name: translations.learn.reset })
+  ).toBeHidden();
+});
+
+test('User can reset on a multi-file project', async ({ page }) => {
+  {
+    await page.goto(
+      '/learn/javascript-algorithms-and-data-structures-v8/build-a-palindrome-checker-project/build-a-palindrome-checker'
+    );
+    await page
+      .getByRole('button', { name: translations.buttons.reset })
+      .click();
+
+    await expect(
+      page.getByRole('dialog', { name: translations.learn.reset })
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole('button', {
+        name: translations.buttons.close
+      })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: translations.learn.reset
+      })
+    ).toBeVisible();
+
+    await expect(
+      page.getByText(translations.learn['reset-warn'])
+    ).toBeVisible();
+    await expect(
+      page.getByText(translations.learn['reset-warn-2'])
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole('button', {
+        name: translations.buttons['reset-lesson']
+      })
+    ).toBeVisible();
+  }
 });
