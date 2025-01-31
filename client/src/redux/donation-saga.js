@@ -18,6 +18,10 @@ import {
 import { stringifyDonationEvents } from '../utils/analytics-strings';
 import { stripe } from '../utils/stripe';
 import { PaymentProvider } from '../../../shared/config/donation-settings';
+import {
+  getSessionChallengeData,
+  saveCurrentCount
+} from '../utils/session-storage';
 import { actionTypes as appTypes } from './action-types';
 import {
   openDonationModal,
@@ -25,7 +29,6 @@ import {
   postChargeProcessing,
   postChargeError,
   preventBlockDonationRequests,
-  setCompletionCountWhenShownProgressModal,
   updateCardError,
   updateCardRedirecting
 } from './actions';
@@ -34,7 +37,6 @@ import {
   recentlyClaimedBlockSelector,
   shouldRequestDonationSelector,
   isSignedInSelector,
-  completionCountSelector,
   completedChallengesSelector
 } from './selectors';
 
@@ -43,15 +45,25 @@ const updateCardErrorMessage = i18next.t('donate.error-3');
 
 function* showDonateModalSaga() {
   let shouldRequestDonation = yield select(shouldRequestDonationSelector);
-  if (shouldRequestDonation) {
+  const recentlyClaimedBlock = yield select(recentlyClaimedBlockSelector);
+  const MODAL_SHOWN_KEY = 'modalShownTimestamp';
+  const modalShownTimestamp = sessionStorage.getItem(MODAL_SHOWN_KEY);
+  const isModalRecentlyShown = Date.now() - modalShownTimestamp < 20000;
+  if (
+    shouldRequestDonation &&
+    recentlyClaimedBlock &&
+    recentlyClaimedBlock.superBlock === 'full-stack-developer'
+  ) {
+    yield put(preventBlockDonationRequests());
+  } else if (shouldRequestDonation || isModalRecentlyShown) {
     yield delay(200);
-    const recentlyClaimedBlock = yield select(recentlyClaimedBlockSelector);
     yield put(openDonationModal());
+    sessionStorage.setItem(MODAL_SHOWN_KEY, Date.now());
     yield take(appTypes.closeDonationModal);
     if (recentlyClaimedBlock) {
       yield put(preventBlockDonationRequests());
     } else {
-      yield put(setCompletionCountWhenShownProgressModal());
+      yield call(saveCurrentCount);
     }
   }
 }
@@ -119,9 +131,8 @@ export function* postChargeSaga({
       });
     } else {
       const completedChallenges = yield select(completedChallengesSelector);
-      const completedChallengesInSession = yield select(
-        completionCountSelector
-      );
+      const sessionChallengeData = yield call(getSessionChallengeData);
+      const completedChallengesInSession = sessionChallengeData.currentCount;
       yield call(callGA, {
         event: 'donation',
         action: stringifyDonationEvents(paymentContext, paymentProvider),

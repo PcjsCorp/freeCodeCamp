@@ -5,8 +5,8 @@ import { prompt } from 'inquirer';
 import { format } from 'prettier';
 import ObjectID from 'bson-objectid';
 
-import { SuperBlocks } from '../../shared/config/superblocks';
-import { createStepFile } from './utils';
+import { SuperBlocks } from '../../shared/config/curriculum';
+import { createStepFile, validateBlockName } from './utils';
 import { getSuperBlockSubPath } from './fs-utils';
 import { Meta } from './helpers/project-metadata';
 
@@ -100,7 +100,6 @@ async function createMetaJson(
   newMeta.dashedName = block;
   newMeta.helpCategory = helpCategory;
   newMeta.order = order;
-  newMeta.superOrder = Object.values(SuperBlocks).indexOf(superBlock) + 1;
   newMeta.superBlock = superBlock;
   // eslint-disable-next-line @typescript-eslint/no-base-to-string
   newMeta.challengeOrder = [{ id: challengeId.toString(), title: 'Step 1' }];
@@ -121,7 +120,6 @@ async function createIntroMD(superBlock: string, block: string, title: string) {
 title: Introduction to the ${title}
 block: ${block}
 superBlock: ${superBlock}
-isBeta: true
 ---
 
 ## Introduction to the ${title}
@@ -165,7 +163,8 @@ async function createFirstChallenge(
     projectPath: newChallengeDir + '/',
     stepNum: 1,
     challengeType: 0,
-    challengeSeeds
+    challengeSeeds,
+    isFirstChallenge: true
   });
 }
 
@@ -200,17 +199,9 @@ void prompt([
   {
     name: 'block',
     message: 'What is the dashed name (in kebab-case) for this project?',
-    validate: (block: string) => {
-      if (!block.length) {
-        return 'please enter a dashed name';
-      }
-      if (/[^a-z0-9-]/.test(block)) {
-        return 'please use alphanumerical characters and kebab case';
-      }
-      return true;
-    },
+    validate: validateBlockName,
     filter: (block: string) => {
-      return block.toLowerCase();
+      return block.toLowerCase().trim();
     }
   },
   {

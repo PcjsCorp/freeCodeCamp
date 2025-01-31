@@ -8,10 +8,12 @@ import { Button, Modal } from '@freecodecamp/ui';
 import { closeModal, resetChallenge } from '../redux/actions';
 import { isResetModalOpenSelector } from '../redux/selectors';
 import callGA from '../../../analytics/call-ga';
+import { canSaveToDB } from '../../../../../shared/config/challenge-types';
 
 interface ResetModalProps {
   close: () => void;
   isOpen: boolean;
+  challengeType: number;
   reset: () => void;
 }
 
@@ -35,7 +37,12 @@ function withActions(...fns: Array<() => void>) {
   return () => fns.forEach(fn => fn());
 }
 
-function ResetModal({ reset, close, isOpen }: ResetModalProps): JSX.Element {
+function ResetModal({
+  reset,
+  close,
+  challengeType,
+  isOpen
+}: ResetModalProps): JSX.Element {
   const { t } = useTranslation();
   if (isOpen) {
     callGA({ event: 'pageview', pagePath: '/reset-modal' });
@@ -45,23 +52,26 @@ function ResetModal({ reset, close, isOpen }: ResetModalProps): JSX.Element {
       <Modal.Header showCloseButton={true} closeButtonClassNames='close'>
         {t('learn.reset')}
       </Modal.Header>
-      <Modal.Body>
-        <div className='text-center'>
-          <p>{t('learn.reset-warn')}</p>
-          <p>
-            <em>{t('learn.reset-warn-2')}</em>.
-          </p>
-        </div>
+      <Modal.Body alignment='center'>
+        <p>
+          {canSaveToDB(challengeType)
+            ? t('learn.revert-warn')
+            : t('learn.reset-warn')}
+        </p>
+        <p>
+          <em>{t('learn.reset-warn-2')}</em>
+        </p>
       </Modal.Body>
       <Modal.Footer>
         <Button
-          data-cy='reset-modal-confirm'
           block={true}
           size='large'
           variant='danger'
           onClick={withActions(reset, close)}
         >
-          {t('buttons.reset-lesson')}
+          {canSaveToDB(challengeType)
+            ? t('buttons.revert-to-saved-code')
+            : t('buttons.reset-lesson')}
         </Button>
       </Modal.Footer>
     </Modal>

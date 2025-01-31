@@ -13,7 +13,7 @@ dotenvConfig({ path: envPath });
  */
 export default defineConfig({
   testDir: 'e2e',
-  testMatch: '*.spec.ts',
+  testMatch: '!(mobile)*.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -33,9 +33,10 @@ export default defineConfig({
     baseURL: process.env.HOME_LOCATION || 'http://127.0.0.1:8000',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-
+    storageState: 'playwright/.auth/certified-user.json',
     /* Use custom test attribute */
-    testIdAttribute: 'data-playwright-test-label'
+    testIdAttribute: 'data-playwright-test-label',
+    screenshot: 'only-on-failure'
   },
 
   /* Configure projects for major browsers */
@@ -85,12 +86,13 @@ export default defineConfig({
     //   name: 'Google Chrome',
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' }
     // }
-  ]
+  ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* Some tests make the api send emails, so we need mailhog to catch them */
+  webServer: {
+    command: 'docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog',
+    port: 1025,
+    reuseExistingServer: true,
+    timeout: 180000
+  }
 });

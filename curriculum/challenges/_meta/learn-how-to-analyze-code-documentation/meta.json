@@ -1,13 +1,9 @@
 {
   "name": "Learn How to Analyze Code Documentation",
-  "isUpcomingChange": true,
+  "isUpcomingChange": false,
   "dashedName": "learn-how-to-analyze-code-documentation",
   "order": 20,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
   "superBlock": "a2-english-for-developers",
-  "isBeta": true,
   "challengeOrder": [
     {
       "id": "6606682f3fbb93838673920d",
@@ -122,5 +118,6 @@
       "title": "Task 25"
     }
   ],
-  "helpCategory": "English"
+  "helpCategory": "English",
+  "blockLayout": "legacy-challenge-grid"
 }

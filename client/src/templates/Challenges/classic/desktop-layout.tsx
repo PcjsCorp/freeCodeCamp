@@ -3,6 +3,7 @@ import React, { useState, useEffect, ReactElement } from 'react';
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex';
 import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
+import store from 'store';
 import { sortChallengeFiles } from '../../../../utils/sort-challengefiles';
 import { challengeTypes } from '../../../../../shared/config/challenge-types';
 import {
@@ -22,6 +23,7 @@ import {
   isAdvancingToChallengeSelector
 } from '../redux/selectors';
 import PreviewPortal from '../components/preview-portal';
+import Notes from '../components/notes';
 import ActionRow from './action-row';
 
 type Pane = { flex: number };
@@ -31,7 +33,6 @@ interface DesktopLayoutProps {
   challengeType: number;
   editor: ReactElement | null;
   hasEditableBoundaries: boolean;
-  hasNotes: boolean;
   hasPreview: boolean;
   instructions: ReactElement;
   isAdvancing: boolean;
@@ -44,7 +45,7 @@ interface DesktopLayoutProps {
     previewPane: Pane;
     testsPane: Pane;
   };
-  notes: ReactElement;
+  notes: string;
   onPreviewResize: () => void;
   preview: ReactElement;
   resizeProps: ResizeProps;
@@ -99,9 +100,77 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
     startWithConsoleShown
   } = props;
 
-  const [showNotes, setShowNotes] = useState(false);
-  const [showConsole, setShowConsole] = useState(startWithConsoleShown);
-  const [showInstructions, setShowInstructions] = useState(true);
+  const initialShowState = (key: string, defaultValue: boolean): boolean => {
+    const savedState: string = store.get('layoutPaneBooleans') as string;
+    try {
+      if (savedState) {
+        const parsedState: Record<string, boolean> = JSON.parse(
+          savedState
+        ) as Record<string, boolean>;
+        return parsedState[key] || defaultValue;
+      }
+    } catch (error) {
+      console.error('Error parsing layoutPaneBooleans from store', error);
+    }
+    return defaultValue;
+  };
+
+  const [showNotes, setShowNotes] = useState(() =>
+    initialShowState('showNotes', false)
+  );
+  const [showConsole, setShowConsole] = useState(() =>
+    initialShowState('showConsole', startWithConsoleShown)
+  );
+  const [showInstructions, setShowInstructions] = useState(() =>
+    initialShowState('showInstructions', true)
+  );
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    setShowPreviewPane(initialShowState('showPreviewPane', false));
+    setShowPreviewPortal(initialShowState('showPreviewPortal', false));
+  }, []);
+
+  useEffect(() => {
+    const layoutPaneBooleans = {
+      showNotes,
+      showConsole,
+      showInstructions,
+      showPreviewPane,
+      showPreviewPortal
+    };
+    store.set('layoutPaneBooleans', JSON.stringify(layoutPaneBooleans));
+  }, [
+    showNotes,
+    showConsole,
+    showInstructions,
+    showPreviewPane,
+    showPreviewPortal
+  ]);
+
+  useEffect(() => {
+    const layoutPaneBooleans: string = store.get(
+      'layoutPaneBooleans'
+    ) as string;
+    if (layoutPaneBooleans) {
+      let parsedLayoutPaneBooleans: Record<string, boolean> = {};
+      try {
+        parsedLayoutPaneBooleans = JSON.parse(layoutPaneBooleans) as Record<
+          string,
+          boolean
+        >;
+      } catch (error) {
+        console.error('Error parsing layoutPaneBooleans from store', error);
+      }
+      setShowNotes(parsedLayoutPaneBooleans.showNotes || false);
+      setShowConsole(
+        parsedLayoutPaneBooleans.showConsole || startWithConsoleShown
+      );
+      setShowInstructions(parsedLayoutPaneBooleans.showInstructions || true);
+      setShowPreviewPane(parsedLayoutPaneBooleans.showPreviewPane || false);
+      setShowPreviewPortal(parsedLayoutPaneBooleans.showPreviewPortal || false);
+    }
+  }, []);
 
   const togglePane = (pane: string): void => {
     if (pane === 'showPreviewPane') {
@@ -146,7 +215,6 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
     instructions,
     editor,
     testOutput,
-    hasNotes,
     hasPreview,
     isAdvancing,
     isFirstStep,
@@ -170,19 +238,20 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
 
   const challengeFile = getChallengeFile();
   const projectBasedChallenge = hasEditableBoundaries;
-  const isMultifileCertProject =
+  const isMultifileProject =
     challengeType === challengeTypes.multifileCertProject ||
-    challengeType === challengeTypes.multifilePythonCertProject;
+    challengeType === challengeTypes.multifilePythonCertProject ||
+    challengeType == challengeTypes.lab;
   const displayPreviewPane = hasPreview && showPreviewPane;
   const displayPreviewPortal = hasPreview && showPreviewPortal;
-  const displayNotes = projectBasedChallenge ? showNotes && hasNotes : false;
-  const displayEditorConsole = !(
-    projectBasedChallenge || isMultifileCertProject
-  )
+  const displayNotes = projectBasedChallenge ? showNotes && !!notes : false;
+  const displayEditorConsole = !(projectBasedChallenge || isMultifileProject)
     ? true
     : false;
   const displayPreviewConsole =
-    (projectBasedChallenge || isMultifileCertProject) && showConsole;
+    (projectBasedChallenge || isMultifileProject) && showConsole;
+  const hasVerticalResizableCodePane =
+    !isMultifileProject && !projectBasedChallenge;
   const {
     codePane,
     editorPane,
@@ -192,12 +261,15 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
     testsPane
   } = layoutState;
 
+  const editorPaneFlex =
+    !displayPreviewConsole && !displayPreviewPane ? 1 : editorPane.flex;
+
   return (
     <div className='desktop-layout' data-playwright-test-label='desktop-layout'>
-      {(projectBasedChallenge || isMultifileCertProject) && (
+      {(projectBasedChallenge || isMultifileProject) && (
         <ActionRow
           hasPreview={hasPreview}
-          hasNotes={hasNotes}
+          hasNotes={!!notes}
           isProjectBasedChallenge={projectBasedChallenge}
           showConsole={showConsole}
           showNotes={showNotes}
@@ -216,6 +288,7 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
           <ReflexElement
             flex={instructionPane.flex}
             {...resizeProps}
+            name='instructionPane'
             data-playwright-test-label='instruction-pane'
           >
             {instructions}
@@ -226,7 +299,8 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
         )}
 
         <ReflexElement
-          flex={editorPane.flex}
+          flex={editorPaneFlex}
+          name='editorPane'
           {...resizeProps}
           data-playwright-test-label='editor-pane'
         >
@@ -236,7 +310,8 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
               orientation='horizontal'
             >
               <ReflexElement
-                flex={codePane.flex}
+                name='codePane'
+                {...(hasVerticalResizableCodePane && { flex: codePane.flex })}
                 {...reflexProps}
                 {...resizeProps}
               >
@@ -259,17 +334,26 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
         </ReflexElement>
         {displayNotes && <ReflexSplitter propagate={true} {...resizeProps} />}
         {displayNotes && (
-          <ReflexElement flex={notesPane.flex} {...resizeProps}>
-            {notes}
+          <ReflexElement
+            name='notesPane'
+            flex={notesPane.flex}
+            {...resizeProps}
+          >
+            <Notes notes={notes} />
           </ReflexElement>
         )}
 
         {(displayPreviewPane || displayPreviewConsole) && (
-          <ReflexSplitter propagate={true} {...resizeProps} />
+          <ReflexSplitter
+            data-playwright-test-label='preview-left-splitter'
+            propagate={true}
+            {...resizeProps}
+          />
         )}
         {(displayPreviewPane || displayPreviewConsole) && (
           <ReflexElement
             flex={previewPane.flex}
+            name='previewPane'
             {...resizeProps}
             data-playwright-test-label='preview-pane'
           >
@@ -280,6 +364,7 @@ const DesktopLayout = (props: DesktopLayoutProps): JSX.Element => {
               )}
               {displayPreviewConsole && (
                 <ReflexElement
+                  name='testsPane'
                   {...(displayPreviewPane && { flex: testsPane.flex })}
                   {...resizeProps}
                 >

@@ -17,11 +17,8 @@ export const openDonationModal = createAction(actionTypes.openDonationModal);
 export const preventBlockDonationRequests = createAction(
   actionTypes.preventBlockDonationRequests
 );
-export const setCompletionCountWhenShownProgressModal = createAction(
-  actionTypes.setCompletionCountWhenShownProgressModal
-);
-export const setShowMultipleProgressModals = createAction(
-  actionTypes.setShowMultipleProgressModals
+export const setIsRandomCompletionThreshold = createAction(
+  actionTypes.setIsRandomCompletionThreshold
 );
 export const updateDonationFormState = createAction(
   actionTypes.updateDonationFormState
@@ -54,6 +51,10 @@ export const acceptTermsError = createAction(actionTypes.acceptTermsError);
 export const fetchUser = createAction(actionTypes.fetchUser);
 export const fetchUserComplete = createAction(actionTypes.fetchUserComplete);
 export const fetchUserError = createAction(actionTypes.fetchUserError);
+
+export const toggleTheme = createAction(actionTypes.toggleTheme);
+export const setTheme = createAction(actionTypes.setTheme);
+export const initializeTheme = createAction(actionTypes.initializeTheme);
 
 export const updateAllChallengesInfo = createAction(
   actionTypes.updateAllChallengesInfo

@@ -23,6 +23,8 @@ const python = 20;
 const dialogue = 21;
 const fillInTheBlank = 22;
 const multifilePythonCertProject = 23;
+const generic = 24;
+const lab = 25;
 
 export const challengeTypes = {
   html,
@@ -49,15 +51,10 @@ export const challengeTypes = {
   python,
   dialogue,
   fillInTheBlank,
-  multifilePythonCertProject
+  multifilePythonCertProject,
+  generic,
+  lab
 };
-
-export const hasNoTests = (challengeType: number): boolean =>
-  challengeType === multipleChoice ||
-  challengeType === theOdinProject ||
-  challengeType === video ||
-  challengeType === dialogue ||
-  challengeType === fillInTheBlank;
 
 export const hasNoSolution = (challengeType: number): boolean => {
   const noSolutions = [
@@ -78,7 +75,8 @@ export const hasNoSolution = (challengeType: number): boolean => {
     msTrophy,
     multipleChoice,
     dialogue,
-    fillInTheBlank
+    fillInTheBlank,
+    generic
   ];
 
   return noSolutions.includes(challengeType);
@@ -96,19 +94,21 @@ export const viewTypes = {
   [step]: 'step',
   [quiz]: 'quiz',
   [backend]: 'backend',
-  [video]: 'video',
+  [video]: 'generic',
   [codeAllyPractice]: 'codeAlly',
   [codeAllyCert]: 'codeAlly',
   [multifileCertProject]: 'classic',
-  [theOdinProject]: 'odin',
+  [theOdinProject]: 'generic',
   [colab]: 'frontend',
   [exam]: 'exam',
   [msTrophy]: 'msTrophy',
-  [multipleChoice]: 'odin',
+  [multipleChoice]: 'generic',
   [python]: 'modern',
-  [dialogue]: 'dialogue',
+  [dialogue]: 'generic',
   [fillInTheBlank]: 'fillInTheBlank',
-  [multifilePythonCertProject]: 'classic'
+  [multifilePythonCertProject]: 'classic',
+  [generic]: 'generic',
+  [lab]: 'classic'
 };
 
 // determine the type of submit function to use for the challenge on completion
@@ -125,7 +125,7 @@ export const submitTypes = {
   [backEndProject]: 'project.backEnd',
   [pythonProject]: 'project.backEnd',
   [step]: 'step',
-  [quiz]: 'quiz',
+  [quiz]: 'tests',
   [backend]: 'backend',
   [modern]: 'tests',
   [video]: 'tests',
@@ -139,5 +139,11 @@ export const submitTypes = {
   [python]: 'tests',
   [dialogue]: 'tests',
   [fillInTheBlank]: 'tests',
-  [multifilePythonCertProject]: 'tests'
+  [multifilePythonCertProject]: 'tests',
+  [generic]: 'tests',
+  [lab]: 'tests'
 };
+
+export const canSaveToDB = (challengeType: number): boolean =>
+  challengeType === challengeTypes.multifileCertProject ||
+  challengeType === challengeTypes.multifilePythonCertProject;

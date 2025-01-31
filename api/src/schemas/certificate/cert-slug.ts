@@ -1,5 +1,6 @@
 import { Type } from '@fastify/type-provider-typebox';
 import { Certification } from '../../../../shared/config/certification-settings';
+import { genericError } from '../types';
 
 export const certSlug = {
   params: Type.Object({
@@ -84,14 +85,7 @@ export const certSlug = {
         certSlug: Type.Enum(Certification),
         certTitle: Type.String(),
         username: Type.String(),
-        date: Type.Number(),
-        completionTime: Type.Number()
-      }),
-      Type.Object({
-        certSlug: Type.Enum(Certification),
-        certTitle: Type.String(),
-        username: Type.String(),
-        name: Type.String(),
+        name: Type.Optional(Type.String()),
         date: Type.Number(),
         completionTime: Type.Number()
       }),
@@ -108,22 +102,17 @@ export const certSlug = {
         )
       })
     ]),
-    400: Type.Object({
-      type: Type.Literal('error'),
-      message: Type.String()
-    }),
     404: Type.Object({
-      message: Type.Literal('flash.cert-not-found'),
-      type: Type.Literal('info'),
-      variables: Type.Object({
-        certSlug: Type.String()
-      })
-    }),
-    500: Type.Object({
-      type: Type.Literal('danger'),
-      message: Type.Literal(
-        'Oops! Something went wrong. Please try again in a moment or contact support@freecodecamp.org if the error persists.'
+      messages: Type.Array(
+        Type.Object({
+          message: Type.Literal('flash.cert-not-found'),
+          type: Type.Literal('info'),
+          variables: Type.Object({
+            certSlug: Type.String()
+          })
+        })
       )
-    })
+    }),
+    default: genericError
   }
 };

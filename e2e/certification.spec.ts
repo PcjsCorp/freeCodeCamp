@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
-import translations from '../client/i18n/locales/english/translations.json';
 
-test.use({ storageState: 'playwright/.auth/certified-user.json' });
+import translations from '../client/i18n/locales/english/translations.json';
+import { alertToBeVisible } from './utils/alerts';
 
 test.describe('Certification page - Non Microsoft', () => {
   test.beforeEach(async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe('Certification page - Non Microsoft', () => {
     await expect(certInfoContainer).toBeVisible();
     const certTitle = certInfoContainer.getByTestId('certification-title');
     await expect(certTitle).toHaveText(
-      translations.certification.title['Responsive Web Design']
+      translations.certification.title['responsive-web-design']
     );
 
     const footer = certWrapper.getByTestId('cert-footer');
@@ -142,13 +142,10 @@ test.describe('Invalid certification page', () => {
     {
       await page.goto('/certification/certifieduser/invalid-certification');
       await expect(page).toHaveURL('/');
-      await expect(page.getByRole('alert')).toHaveText(
-        /The certification you tried to view does not exist/
-      );
+      await alertToBeVisible(page, translations.flash['certificate-missing']);
     }
   };
   test.describe('for authenticated user', () => {
-    test.use({ storageState: 'playwright/.auth/certified-user.json' });
     test(
       'it should redirect to / and display an error message',
       testInvalidCertification
@@ -198,7 +195,7 @@ test.describe('Certification page - Microsoft', () => {
     await expect(certInfoContainer).toBeVisible();
     const certTitle = certInfoContainer.getByTestId('certification-title');
     await expect(certTitle).toHaveText(
-      translations.certification.title['Foundational C# with Microsoft']
+      translations.certification.title['foundational-c-sharp-with-microsoft']
     );
 
     const footer = certWrapper.getByTestId('cert-footer');
@@ -244,22 +241,6 @@ test.describe('Certification page - Microsoft', () => {
       page.getByText(
         'If you suspect that any of these projects violate the academic honesty policy, please report this to our team.'
       )
-    ).toBeVisible();
-
-    const policyLink = projectLinks.getByRole('link', {
-      name: 'academic honesty policy'
-    });
-    await expect(policyLink).toHaveAttribute(
-      'href',
-      'https://www.freecodecamp.org/news/academic-honesty-policy/'
-    );
-
-    const reportLink = projectLinks.getByRole('link', {
-      name: 'report this to our team'
-    });
-    await expect(reportLink).toHaveAttribute(
-      'href',
-      '/user/certifieduser/report-user'
-    );
+    ).toHaveCount(0);
   });
 });

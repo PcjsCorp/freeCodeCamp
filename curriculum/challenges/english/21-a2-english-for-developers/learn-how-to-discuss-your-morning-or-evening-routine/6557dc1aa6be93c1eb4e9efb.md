@@ -11,13 +11,10 @@ dashedName: task-29
 
 The word `if` is often used in conditional statements to talk about a possible situation and its consequences. For example:
 
-`If it rains, I will bring an umbrella.` 
-(The action of bringing an umbrella depends on the possibility of rain.)
+* `If it rains, I will bring an umbrella.` (The action of bringing an umbrella depends on the possibility of rain.)
+* `If you need help, just ask.` (The offer to help is conditional on the other person needing it.)
 
-`If you need help, just ask.` 
-(The offer to help is conditional on the other person needing it.)
-
-# --question--
+# --questions--
 
 ## --text--
 

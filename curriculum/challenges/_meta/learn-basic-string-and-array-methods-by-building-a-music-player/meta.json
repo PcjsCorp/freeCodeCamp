@@ -4,13 +4,8 @@
   "usesMultifileEditor": true,
   "hasEditableBoundaries": true,
   "dashedName": "learn-basic-string-and-array-methods-by-building-a-music-player",
-  "order": 3,
-  "time": "5 hours",
-  "template": "",
-  "required": [],
+  "order": 6,
   "superBlock": "javascript-algorithms-and-data-structures-v8",
-  "superOrder": 4,
-  "isBeta": true,
   "challengeOrder": [
     {
       "id": "652f948489abbb81e6bf5a01",
@@ -409,5 +404,6 @@
       "title": "Step 99"
     }
   ],
-  "helpCategory": "JavaScript"
+  "helpCategory": "JavaScript",
+  "blockLayout": "legacy-challenge-grid"
 }

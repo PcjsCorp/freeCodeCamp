@@ -7,7 +7,7 @@ dashedName: simulate-actions-using-a-headless-browser
 
 # --description--
 
-As a reminder, this project is being built upon the following starter project on <a href="https://gitpod.io/?autostart=true#https://github.com/freeCodeCamp/boilerplate-mochachai/" target="_blank" rel="noopener noreferrer nofollow">Gitpod</a>, or cloned from <a href="https://github.com/freeCodeCamp/boilerplate-mochachai/" target="_blank" rel="noopener noreferrer nofollow">GitHub</a>.
+As a reminder, this project is being built upon the following starter project on <a href="https://gitpod.io/?autostart=true#https://github.com/freeCodeCamp/boilerplate-mochachai/" target="_blank" rel="noopener noreferrer nofollow">Gitpod</a>, or cloned from <a href="https://github.com/freeCodeCamp/boilerplate-mochachai/" target="_blank" rel="noopener noreferrer nofollow">GitHub</a>. Learn <a href="https://forum.freecodecamp.org/t/how-to-use-gitpod-in-the-curriculum/668669#how-can-i-share-my-workspace-to-get-help-8" target="_blank" rel="noopener noreferrer nofollow">how to share your Gitpod workspace to get help</a>.
 
 In the next challenges, you'll simulate human interaction with a page by using a headless browser.
 
@@ -28,7 +28,7 @@ There are several other hook types that can execute code before each test, after
 Within `tests/2_functional-tests.js`, immediately after the `Browser` declaration, add your project URL to the `site` property of the variable:
 
 ```js
-Browser.site = 'http://localhost:3000'; // Your URL here
+Browser.site = 'http://0.0.0.0:3000'; // Your URL here
 ```
 
 Then at the root level of the `'Functional Tests with Zombie.js'` suite, instantiate a new instance of the `Browser` object with the following code:
@@ -37,7 +37,7 @@ Then at the root level of the `'Functional Tests with Zombie.js'` suite, instant
 const browser = new Browser();
 ```
 
-And use the `suiteSetup` hook to direct the `browser` to the `/` route with the following code:
+And use the `suiteSetup` hook to direct the `browser` to the `/` route with the following code. **Note**: `done` is passed as a callback to `browser.visit`, you should not invoke it.
 
 ```js
 suiteSetup(function(done) {
@@ -61,12 +61,3 @@ All tests should pass.
   );
 ```
 
-# --solutions--
-
-```js
-/**
-  Backend challenges don't need solutions, 
-  because they would need to be tested against a full working project. 
-  Please check our contributing guidelines to learn more.
-*/
-```
